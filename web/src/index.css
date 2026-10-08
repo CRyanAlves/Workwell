@@ -1,26 +1,57 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Fraunces:wght@600;700&display=swap");
+@import "./styles/tokens.css";
+
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #24322c;
-  background: #f4f7f5;
+  font-family: var(--fonte-corpo);
+  color: var(--texto);
+  background: var(--fundo);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --verde-900: #153f31;
-  --verde-700: #216348;
-  --verde-500: #2e8b62;
-  --verde-100: #e5f3eb;
-  --verde-50: #f1f8f4;
-  --texto: #24322c;
-  --texto-suave: #66736d;
-  --borda: #dde5e0;
-  --fundo: #f4f7f5;
-  --branco: #ffffff;
-  --sombra: 0 14px 38px rgba(25, 61, 47, 0.08);
 }
 
-* { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; min-height: 100vh; }
-button, select, textarea { font: inherit; }
-button { cursor: pointer; }
-button:disabled { cursor: not-allowed; }
-h1, h2, p { margin-top: 0; }
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+h1,
+h2,
+h3,
+.marca {
+  font-family: var(--fonte-titulo);
+}
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+:focus-visible {
+  outline: 3px solid var(--cor-menta);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

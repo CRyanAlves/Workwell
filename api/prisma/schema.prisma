@@ -18,6 +18,9 @@ enum CategoriaHabito {
   ALIMENTACAO
   PAUSA
   ESTRESSE
+  HIDRATACAO
+  MEDITACAO
+  PERSONALIZADO
 }
 
 enum PeriodoMeta {
@@ -124,31 +127,46 @@ model Habito {
 }
 
 model Meta {
-  id             Int         @id @default(autoincrement())
-  usuarioId      Int
-  habitoId       Int
-  frequenciaAlvo Int
-  periodo        PeriodoMeta
-  dataInicio     DateTime    @db.Date
-  dataFim        DateTime?   @db.Date
-  ativa          Boolean     @default(true)
-  criadaEm       DateTime    @default(now())
-  atualizadaEm   DateTime    @updatedAt
+  id                Int         @id @default(autoincrement())
+  usuarioId         Int
+  habitoId          Int
+  frequenciaAlvo    Int
+  periodo           PeriodoMeta
+  dataInicio        DateTime    @db.Date
+  dataFim           DateTime?   @db.Date
+  ativa             Boolean     @default(true)
+  nome              String?
+  icone             String?
+  unidade           String      @default("vezes")
+  diasSemana        Int[]       @default([])
+  quantidadeSemanal Int?
+  permitirPausa     Boolean     @default(true)
+  lembretesAtivos   Boolean     @default(false)
+  origemLocalId     String?
+  criadaEm          DateTime    @default(now())
+  atualizadaEm      DateTime    @updatedAt
 
   usuario   Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   habito    Habito           @relation(fields: [habitoId], references: [id], onDelete: Restrict)
   registros RegistroHabito[]
+  lembretes Lembrete[]
 
   @@index([usuarioId, ativa])
   @@index([habitoId])
+  @@unique([usuarioId, origemLocalId])
 }
 
 model RegistroHabito {
-  id        Int      @id @default(autoincrement())
-  metaId    Int
-  data      DateTime @db.Date
-  concluido Boolean  @default(true)
-  criadoEm  DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  metaId        Int
+  data          DateTime @db.Date
+  concluido     Boolean  @default(true)
+  valor         Int      @default(0)
+  metaAlvo      Int?
+  pausado       Boolean  @default(false)
+  avaliacaoSono Int?
+  atualizadoEm  DateTime @updatedAt
+  criadoEm      DateTime @default(now())
 
   meta Meta @relation(fields: [metaId], references: [id], onDelete: Cascade)
 
@@ -159,6 +177,7 @@ model RegistroHabito {
 model Lembrete {
   id           Int          @id @default(autoincrement())
   usuarioId    Int
+  metaId       Int?
   tipo         TipoLembrete
   horario      DateTime     @db.Time(0)
   diasSemana   Int[]        @default([])
@@ -167,8 +186,10 @@ model Lembrete {
   atualizadoEm DateTime     @updatedAt
 
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  meta    Meta?   @relation(fields: [metaId], references: [id], onDelete: Cascade)
 
   @@index([usuarioId, ativo])
+  @@unique([metaId, horario])
 }
 
 model Desafio {

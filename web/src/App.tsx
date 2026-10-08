@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { ColaboradorView } from "./components/ColaboradorView";
+import { ColaboradorNav } from "./components/ColaboradorNav";
+import type { PaginaColaborador } from "./components/ColaboradorNav";
+import { HabitosView } from "./components/HabitosView";
 import { RhView } from "./components/RhView";
 import { api } from "./services/api";
 import type { Usuario } from "./types";
@@ -25,17 +28,13 @@ export default function App() {
   const [emailSelecionado, setEmailSelecionado] = useState(EMAIL_COLABORADOR);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [pagina, setPagina] = useState<PaginaColaborador>("inicio");
 
   const perfisDemo = useMemo(
-    () =>
-      usuarios.filter((usuario) =>
-        [EMAIL_COLABORADOR, EMAIL_RH].includes(usuario.email),
-      ),
-    [usuarios],
+    () => usuarios.filter((usuario) => [EMAIL_COLABORADOR, EMAIL_RH].includes(usuario.email)),
+    [usuarios]
   );
-  const usuario = perfisDemo.find(
-    (perfil) => perfil.email === emailSelecionado,
-  );
+  const usuario = perfisDemo.find((perfil) => perfil.email === emailSelecionado);
 
   async function atualizarUsuarios() {
     const dados = await buscarUsuarios();
@@ -77,15 +76,21 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div
+      className={`app-shell${usuario.perfil === "COLABORADOR" ? " colaborador-shell" : ""}${usuario.perfil === "COLABORADOR" && pagina === "habitos" ? " habitos-shell" : ""}`}
+    >
       <aside className="sidebar">
         <div className="marca" aria-label="WorkWell">
-          <span className="marca-simbolo">W</span>
+          <img className="marca-simbolo" src="/logo-workwell.webp" alt="" />
           <span>WorkWell</span>
         </div>
 
         <nav className="navegacao" aria-label="Navegação principal">
-          <button className="nav-item ativo" type="button">
+          <button
+            className={`nav-item${pagina !== "habitos" || usuario.perfil === "GESTOR_RH" ? " ativo" : ""}`}
+            type="button"
+            onClick={() => setPagina("inicio")}
+          >
             <span className="nav-marcador" />
             Visão geral
           </button>
@@ -93,9 +98,13 @@ export default function App() {
             Check-ins
             <span className="nav-futuro">MVP</span>
           </button>
-          <button className="nav-item" type="button" disabled>
+          <button
+            className={`nav-item${pagina === "habitos" && usuario.perfil === "COLABORADOR" ? " ativo" : ""}`}
+            type="button"
+            disabled={usuario.perfil !== "COLABORADOR"}
+            onClick={() => setPagina("habitos")}
+          >
             Metas e hábitos
-            <span className="nav-futuro">Em breve</span>
           </button>
         </nav>
 
@@ -117,7 +126,10 @@ export default function App() {
             <select
               id="perfil-demo"
               value={emailSelecionado}
-              onChange={(evento) => setEmailSelecionado(evento.target.value)}
+              onChange={(evento) => {
+                setEmailSelecionado(evento.target.value);
+                setPagina("inicio");
+              }}
             >
               {perfisDemo.map((perfil) => (
                 <option key={perfil.id} value={perfil.email}>
@@ -130,15 +142,19 @@ export default function App() {
         </header>
 
         <main className="conteudo-principal">
-          {usuario.perfil === "COLABORADOR" ? (
+          {usuario.perfil === "COLABORADOR" && pagina === "habitos" ? (
+            <HabitosView key={usuario.id} usuario={usuario} />
+          ) : usuario.perfil === "COLABORADOR" ? (
             <ColaboradorView
               usuario={usuario}
               onUsuarioAtualizado={atualizarUsuarios}
+              mostrarProgresso={pagina === "progresso"}
             />
           ) : (
             <RhView usuario={usuario} />
           )}
         </main>
+        {usuario.perfil === "COLABORADOR" && <ColaboradorNav pagina={pagina} onNavegar={setPagina} />}
       </section>
     </div>
   );

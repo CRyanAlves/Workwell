@@ -5,18 +5,12 @@ type EscalaProps = {
   inicio: string;
   fim: string;
   onChange: (valor: number) => void;
+  disabled?: boolean;
 };
 
-export function Escala({
-  titulo,
-  descricao,
-  valor,
-  inicio,
-  fim,
-  onChange,
-}: EscalaProps) {
+export function Escala({ titulo, descricao, valor, inicio, fim, onChange, disabled = false }: EscalaProps) {
   return (
-    <fieldset className="escala-grupo">
+    <fieldset className="escala-grupo" disabled={disabled}>
       <legend>
         <strong>{titulo}</strong>
         <span>{descricao}</span>
